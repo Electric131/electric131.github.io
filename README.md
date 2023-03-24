@@ -1,2 +1,2 @@
 # electric131.github.io
-hallo, you are the sillies!
+This is not the page you are looking for.
