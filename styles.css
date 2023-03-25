@@ -3,39 +3,69 @@
     padding: 80px 30px;
     border-bottom: 1px solid #e4ebf3;
     background-color: #f5f7fa;
-  }
-  
-  .container {
+}
+
+.container {
     width: 100%;
     max-width: 940px;
     margin-right: auto;
     margin-left: auto;
-  }
-  
-  .hero-wrapper {
+}
+
+.intro-wrap {
+    margin-top: 100px;
+    margin-bottom: 140px;
+}
+
+.name-text {
+    font-size: 20px;
+    line-height: 34px;
+    font-weight: 400;
+}
+
+.paragraph-light {
+    opacity: 0.6;
+}
+
+.heading-jumbo {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 64px;
+    line-height: 80px;
+    text-transform: none;
+    font-family: "Montserrat, sans-serif";
+    font-weight: 400;
+}
+
+.section {
+    margin-right: 30px;
+    margin-left: 30px;
+}
+
+.hero-wrapper {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-style: solid;
-  }
-  
-  .hero-split {
+}
+
+.hero-split {
     display: flex;
     max-width: 46%;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
-  }
-  
-  .shadow-two {
+}
+
+.shadow-two {
     box-shadow: 0 4px 24px 0 rgba(150, 163, 181, 0.08);
-  }
-  
-  .margin-bottom-24px {
+}
+
+.margin-bottom-24px {
     margin-bottom: 24px;
-  }
-  
-  .button-primary {
+}
+
+.button-primary {
     padding: 12px 25px;
     background-color: #1a1b1f;
     transition: all 200ms ease;
@@ -45,43 +75,43 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     margin-bottom: 10px;
-  }
-  
-  .button-primary:hover {
+}
+
+.button-primary:hover {
     background-color: #32343a;
     color: #fff;
-  }
-  
-  .button-primary:active {
+}
+
+.button-primary:active {
     background-color: #43464d;
-  }
-  
-  @media screen and (max-width: 991px) {
+}
+
+@media screen and (max-width: 991px) {
     .container {
-      max-width: 728px;
+    max-width: 728px;
     }
-  
+
     .hero-wrapper {
-      margin-bottom: -40px;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-start;
+    margin-bottom: -40px;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
     }
-  
+
     .hero-split {
-      max-width: 100%;
-      margin-bottom: 40px;
+    max-width: 100%;
+    margin-bottom: 40px;
     }
-  }
-  
-  @media screen and (max-width: 767px) {
+}
+
+@media screen and (max-width: 767px) {
     .hero-heading-right {
-      padding: 60px 15px;
+    padding: 60px 15px;
     }
-  }
-  
-  @media screen and (max-width: 479px) {
+}
+
+@media screen and (max-width: 479px) {
     .container {
-      max-width: none;
+    max-width: none;
     }
-  }
+}
