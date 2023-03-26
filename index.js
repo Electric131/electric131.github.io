@@ -5,6 +5,7 @@ setTimeout(() => {
         res.text().then(data => {
             document.querySelector("#projects").innerHTML = ""
             for (project of data.split('\n')) {
+                console.log("Loading project " + project)
                 load_project(project);
             }
         })
