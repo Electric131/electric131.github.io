@@ -44,9 +44,10 @@
 
 .hero-wrapper {
     display: flex;
-    justify-content: space-between;
+    justify-content: start;
     align-items: center;
     border-style: solid;
+    margin-top: 10px;
 }
 
 .hero-split {
@@ -54,6 +55,7 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
+    padding-right: 10px;
 }
 
 .shadow-two {
