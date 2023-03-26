@@ -1,13 +1,15 @@
 
 // Get list of current projects.
-fetch("/projects/list.txt").then(res => {
-    res.text().then(data => {
-        document.querySelector("#projects").innerHTML = ""
-        for (project of data.split('\n')) {
-            load_project(project);
-        }
+setTimeout(() => {
+    fetch("/projects/list.txt").then(res => {
+        res.text().then(data => {
+            document.querySelector("#projects").innerHTML = ""
+            for (project of data.split('\n')) {
+                load_project(project);
+            }
+        })
     })
-})
+}, 10)
 
 // Load project info
 function load_project(name) {
