@@ -16,6 +16,7 @@ setTimeout(() => {
 function load_project(name) {
     fetch(`/projects/${name}/info.json`).then(res => {
         res.json().then(data => {
+            console.log("Inserting html for next project: " + name)
             document.querySelector("#projects").innerHTML += `<div class="hero-wrapper">
     <div class="hero-split">
         <img src="/projects/${name}/thumbnail.${data.thumbnailtype}" loading="lazy" alt="Thumbnail" class="shadow-two thumbnail">
