@@ -1,2 +1,2 @@
 genetics-playground
-polynomial-solver
+quizizz-reaction-spammer
