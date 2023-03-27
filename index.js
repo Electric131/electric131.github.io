@@ -1,22 +1,29 @@
 
 // Get list of current projects.
+let projects = []
 fetch("/projects/list.txt").then(res => {
     res.text().then(data => {
         document.querySelector("#projects").innerHTML = ""
-        for (project of data.split('\n')) {
-            console.log("Loading project: " + project)
-            load_project(project);
-            console.log("Finished list loading project: " + project)
-        }
+        projects = data.split('\n')
+        load_next()
     })
 })
 
-// Load project info
-async function load_project(name) {
-    console.log("Loading project: " + name)
-    await fetch(`/projects/${name}/info.json`).then(res => {
+// Load next project then remove it.
+function load_next() {
+    if (projects.length > 0) {
+        let project = projects[0]
+        projects.splice(0, 1)
+        console.log("Loading project: " + project)
+        load_project(project);
+        console.log("Finished loading project: " + project)
+    }
+}
+
+// Load project info then load next once loaded.
+function load_project(name) {
+    fetch(`/projects/${name}/info.json`).then(res => {
         res.json().then(data => {
-            console.log("Inserting html for next project: " + name)
             document.querySelector("#projects").innerHTML += `<div class="hero-wrapper">
     <div class="hero-split">
         <img src="/projects/${name}/thumbnail.${data.thumbnailtype}" loading="lazy" alt="Thumbnail" class="shadow-two thumbnail">
@@ -28,7 +35,6 @@ async function load_project(name) {
     </div>
 </div>`
         })
-        console.log("Html inserted for project: " + name)
+        load_next()
     })
-    console.log("Finished loading project: " + name)
 }
