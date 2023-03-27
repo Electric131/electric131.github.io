@@ -29,15 +29,3 @@ function load_project(name) {
         })
     })
 }
-
-
-/* <div class="hero-wrapper">
-        <div class="hero-split">
-            <img src="/projects/genetics-playground/thumbnail.gif" loading="lazy" alt="Thumbnail" class="shadow-two">
-        </div>
-        <div class="hero-split">
-            <h1>Loading...</h1>
-            <p class="margin-bottom-24px"></p>
-            <a href="/projects/genetics-playground/" class="button-primary">View</a>
-        </div>
-    </div> */
