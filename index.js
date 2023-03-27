@@ -4,14 +4,16 @@ fetch("/projects/list.txt").then(res => {
     res.text().then(data => {
         document.querySelector("#projects").innerHTML = ""
         for (project of data.split('\n')) {
-            console.log("Loading project " + project)
+            console.log("Loading project: " + project)
             load_project(project);
+            console.log("Finished list loading project: " + name)
         }
     })
 })
 
 // Load project info
 async function load_project(name) {
+    console.log("Loading project: " + name)
     await fetch(`/projects/${name}/info.json`).then(res => {
         res.json().then(data => {
             console.log("Inserting html for next project: " + name)
@@ -26,5 +28,7 @@ async function load_project(name) {
     </div>
 </div>`
         })
+        console.log("Html inserted for project: " + name)
     })
+    console.log("Finished loading project: " + name)
 }
