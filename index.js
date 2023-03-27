@@ -6,7 +6,7 @@ fetch("/projects/list.txt").then(res => {
         for (project of data.split('\n')) {
             console.log("Loading project: " + project)
             load_project(project);
-            console.log("Finished list loading project: " + name)
+            console.log("Finished list loading project: " + project)
         }
     })
 })
