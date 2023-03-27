@@ -1,20 +1,18 @@
 
 // Get list of current projects.
-setTimeout(() => {
-    fetch("/projects/list.txt").then(res => {
-        res.text().then(data => {
-            document.querySelector("#projects").innerHTML = ""
-            for (project of data.split('\n')) {
-                console.log("Loading project " + project)
-                load_project(project);
-            }
-        })
+fetch("/projects/list.txt").then(res => {
+    res.text().then(data => {
+        document.querySelector("#projects").innerHTML = ""
+        for (project of data.split('\n')) {
+            console.log("Loading project " + project)
+            load_project(project);
+        }
     })
-}, 10)
+})
 
 // Load project info
-function load_project(name) {
-    fetch(`/projects/${name}/info.json`).then(res => {
+async function load_project(name) {
+    await fetch(`/projects/${name}/info.json`).then(res => {
         res.json().then(data => {
             console.log("Inserting html for next project: " + name)
             document.querySelector("#projects").innerHTML += `<div class="hero-wrapper">
