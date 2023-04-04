@@ -25,6 +25,12 @@ class Population {
     add_trait(name) {
 
     }
+
+    add_rabbit(genetics) {
+        let rabbit = new Rabbit()
+        rabbit.set_trait("heee", "d")
+        this.rabbits.push(rabbit)
+    }
 }
 
 

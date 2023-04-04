@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Note Keeper</title>
+        <style>
+
+            body {
+                margin: 0;
+            }
+
+            .banner {
+                background-color: #a7a7a7;
+                overflow: hidden;
+            }
+
+            .button-home {
+                background-color: gray;
+                color: white;
+                padding: 14px 20px;
+                text-align: left;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 6px 10px;
+                cursor: pointer;
+                border-radius: 4px;
+                transition: background-color 0.3s;
+            }
+
+            .button-home:hover {
+                background-color: lightgray;
+                color: black;
+            }
+
+            .sticky {
+                position: absolute;
+            }
+
+        </style>
+    </head>
+
+    <template>
+        <div cursor="move">
+            <p>Helllooo</p>
+        </div>
+    </template>
+
+    <body>
+        <div class="banner">
+            <a href="/" class="button-home">Home</a>
+        </div>
+        <div style="padding: 2px 10px;" class="sticky">
+            <div cursor="move" style="background-color: yellow">
+                <p>Helllooo</p>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,2 +1,3 @@
 genetics-playground
+note-keeper
 quizizz-reaction-spammer
