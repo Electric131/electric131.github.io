@@ -32,6 +32,7 @@ class Rabbit {
         this.temperature = 0
         this.updates = 0
         this.target = { x: 0, y: 0 }
+        this.wasAtTarget = false
     }
 
     // Set allele at specified index
@@ -91,7 +92,7 @@ class Rabbit {
     }
 
     atTarget(maxDist=0.2) {
-        return Math.sqrt((this.position.x - this.target.x) ** 2 + (this.position.y - this.target.y) ** 2) <= maxDist
+        return Math.sqrt((this.target.x - this.position.x) ** 2 + (this.target.y - this.position.y) ** 2) <= maxDist
     }
 
     setTarget(radius) {
@@ -100,9 +101,11 @@ class Rabbit {
             x: Math.cos(angle) * radius,
             y: Math.sin(angle) * radius
         }
+        this.wasAtTarget = false
     }
 
     move(dist) {
+        if (this.atTarget()) return
         let dx = this.target.x - this.position.x
         let dy = this.target.y - this.position.y
         let angle = Math.atan2(dy, dx)
@@ -118,8 +121,14 @@ class Rabbit {
     }
 
     tryMove() {
+        let atTarget = this.atTarget(0.3)
+        if (atTarget && !this.wasAtTarget) {
+            this.updates = 0
+        }
+        this.wasAtTarget = atTarget
         const moveChance = Math.floor(0.5 * ((1.05) ^ this.updates)) // Determines a number >= 0, rate on a scale of 0-10 chance.
-        if (this.atTarget() && (Math.random() * 9 + 1) < moveChance) {
+        if (atTarget && (Math.random() * 9 + 1) < moveChance) {
+            console.log("Changed target")
             this.setTarget(Math.random() * 3)
         }
     }
@@ -129,9 +138,8 @@ class Rabbit {
         this.updates += 1
         if (this.health <= 0) this.delete()
         this.tryMove()
-        this.move(0.01)
+        this.move(0.1)
         console.log(this.position)
-        console.log(this.target)
     }
 }
 
@@ -247,7 +255,7 @@ class Population {
             this.untilGeneration += 50
             if (this.untilGeneration >= this.generationDelay) {
                 this.untilGeneration = 0
-                this.nextGeneration()
+                // this.nextGeneration()
             }
             for (const rabbit of this.rabbits) {
                 rabbit.update() // Update rabbit data (ex. movement, health, or energy)
