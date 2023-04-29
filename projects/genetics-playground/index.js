@@ -18,6 +18,24 @@ function remove(array, value) {
     return array
 }
 
+function moveCentered(element, x, y) {
+    size = 20 // Grid size as a multiplier, ie. div width is 800; internal is 20; if x == 20, then 'left' should be 800
+    element.style.top = ((10 + y) * size + 80).toString() + "px"
+    element.style.left = ((20 + x) * size + 10).toString() + "px"
+}
+
+function updateRabbit(id) {
+    let rabbitZone = document.getElementById("rabbit-zone")
+    // Not enough rabbits yet, add more
+    while (rabbitZone.children.length <= id) {
+        let rabbit = document.createElement("img")
+        rabbit.src = "rabbit_white.png"
+        rabbit.className = "rabbit"
+        rabbitZone.appendChild(rabbit)
+    }
+    return rabbitZone.children[id]
+}
+
 class Rabbit {
     constructor() {
         this.state = "alive"
@@ -27,7 +45,6 @@ class Rabbit {
         this.population = null
         this.mate = null
         this.food = 0
-        this.state = "idle"
         this.health = 100
         this.temperature = 0
         this.updates = 0
@@ -98,8 +115,8 @@ class Rabbit {
     setTarget(radius) {
         let angle = Math.random() * Math.PI * 2
         this.target = {
-            x: Math.cos(angle) * radius,
-            y: Math.sin(angle) * radius
+            x: this.position.x + Math.cos(angle) * radius,
+            y: this.position.y + Math.sin(angle) * radius
         }
         this.wasAtTarget = false
     }
@@ -128,18 +145,24 @@ class Rabbit {
         this.wasAtTarget = atTarget
         const moveChance = Math.floor(0.5 * ((1.05) ^ this.updates)) // Determines a number >= 0, rate on a scale of 0-10 chance.
         if (atTarget && (Math.random() * 9 + 1) < moveChance) {
-            console.log("Changed target")
-            this.setTarget(Math.random() * 3)
+            this.setTarget(Math.random() * 8)
         }
     }
 
     // Runs an update on this rabbit, changing position, health, temperature, ect.
-    update() {
+    update(id=0) {
         this.updates += 1
         if (this.health <= 0) this.delete()
         this.tryMove()
         this.move(0.1)
-        console.log(this.position)
+        let element = updateRabbit(id)
+        moveCentered(element, this.position.x, this.position.y)
+        let phenotypes = this.phenotypeFormat()
+        if (phenotypes["fur"] == "brown") { // Is brown
+            element.src = "rabbit_brown.png"
+        } else {
+            element.src = "rabbit_white.png"
+        }
     }
 }
 
@@ -197,6 +220,16 @@ class Population {
         return this.repairAllele(allele1[i1] + allele2[i2])
     }
 
+    // Return point between two others
+    lerp(pos1, pos2, amount=0.5) {
+        let xdiff = pos2.x - pos1.x
+        let ydiff = pos2.y - pos1.y
+        return {
+            x: pos1.x + xdiff * amount,
+            y: pos1.y + ydiff * amount
+        }
+    }
+
     // Return a random offspring from two parents
     breed(rabbit1, rabbit2) {
         let newGenetics = []
@@ -204,12 +237,14 @@ class Population {
             newGenetics.push(this.mixAlleles(rabbit1.genetics[i], rabbit2.genetics[i]))
         }
         let rabbit = this.addRabbit()
+        rabbit.position = this.lerp(rabbit1.position, rabbit2.position)
+        rabbit.target = rabbit.position
         rabbit.genetics = newGenetics
         return rabbit
     }
 
     // Find rabbits that are close to another rabbit
-    findNearby(rabbit, radius = 2) {
+    findNearby(rabbit, radius=10) {
         return this.rabbits.filter((searchRabbit) => {
             return Math.sqrt((rabbit.position.x - searchRabbit.position.x) ** 2 + (rabbit.position.y - searchRabbit.position.y) ** 2) <= radius && rabbit != searchRabbit
         })
@@ -218,6 +253,7 @@ class Population {
     // Pick mates and breed into next generation
     nextGeneration() {
         if (this.rabbits.length > this.overpopulation) {
+            alert("Overpopulation reached")
             this.running = false
             this.endReason = "overpopulation"
             return false
@@ -238,7 +274,6 @@ class Population {
             }
             breeding = remove(breeding, breeding[0])
         }
-        console.log(this.rabbits.length)
         if (this.rabbits.length > this.overpopulation) {
             this.running = false
             this.endReason = "overpopulation"
@@ -255,10 +290,13 @@ class Population {
             this.untilGeneration += 50
             if (this.untilGeneration >= this.generationDelay) {
                 this.untilGeneration = 0
-                // this.nextGeneration()
+                this.nextGeneration()
             }
+            document.getElementById("population").innerHTML = `Rabbit Count: ${this.rabbits.length}/${this.overpopulation}`
+            let i = 0
             for (const rabbit of this.rabbits) {
-                rabbit.update() // Update rabbit data (ex. movement, health, or energy)
+                rabbit.update(i) // Update rabbit data (ex. movement, health, or energy)
+                i++
             }
         }
     }
@@ -266,7 +304,7 @@ class Population {
 
 let sim = new Population({
     overpopulation: 100,
-    generationDelay: 500,
+    generationDelay: 5000,
     background: 0, // Default snowy background
 })
 
@@ -276,36 +314,36 @@ sim.addTrait("teeth", ["short", "long"])
 sim.addTrait("ears", ["short", "floppy"])
 
 let rabbit1 = sim.addRabbit()
-// let rabbit2 = sim.addRabbit()
+let rabbit2 = sim.addRabbit()
 
 rabbit1.genetics = ["10", "10", "10", "10"]
-// rabbit2.genetics = ["10", "10", "10", "10"]
+rabbit2.genetics = ["10", "10", "10", "10"]
 
 sim.update()
 
 // Worst case, only runs every second
-setTimeout(() => {
-    sim.update()
-},1000)
-setTimeout(() => {
-    sim.update()
-},2000)
-setTimeout(() => {
-    sim.update()
-},3000)
-setTimeout(() => {
-    sim.update()
-},4000)
-setTimeout(() => {
-    sim.update()
-},5000)
-setTimeout(() => {
-    sim.update()
-},6000)
-
-// setInterval(() => {
+// setTimeout(() => {
 //     sim.update()
-// }, 50)
+// },1000)
+// setTimeout(() => {
+//     sim.update()
+// },2000)
+// setTimeout(() => {
+//     sim.update()
+// },3000)
+// setTimeout(() => {
+//     sim.update()
+// },4000)
+// setTimeout(() => {
+//     sim.update()
+// },5000)
+// setTimeout(() => {
+//     sim.update()
+// },6000)
+
+setInterval(() => {
+    sim.update()
+}, 50)
 
 // Mark as 0 and 1, showing dominant or recessive (ex. 11 is AA 10 is Aa 00 is aa)
 // In order to mix, we have to generate combinations of each genotype into rows and columns.
