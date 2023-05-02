@@ -24,14 +24,18 @@ function moveCentered(element, x, y) {
     element.style.left = ((20 + x) * size + 10).toString() + "px"
 }
 
-function updateRabbit(id) {
+function updateRabbit(id, rabbit=None) {
     let rabbitZone = document.getElementById("rabbit-zone")
     // Not enough rabbits yet, add more
     while (rabbitZone.children.length <= id) {
         let rabbit = document.createElement("img")
         rabbit.src = "rabbit_white.png"
         rabbit.className = "rabbit"
+        rabbit.style.userSelect = "none"
         rabbitZone.appendChild(rabbit)
+    }
+    if (rabbit.state == "dead") {
+        rabbitZone.removeChild(rabbitZone.children[id])
     }
     return rabbitZone.children[id]
 }
@@ -85,6 +89,24 @@ class Rabbit {
             dict[this.traits[i][0]] = this.traits[i][1][this.geneticIndex(i)]
         }
         return dict
+    }
+
+    // Generate an array of the phenotype
+    phenotypeArray() {
+        let array = []
+        for (const i in this.genetics) {
+            array.push(this.traits[i][1][this.geneticIndex(i)])
+        }
+        return array
+    }
+
+    // Returns an array of the phenotype with its name and value included
+    phenotypeVisual() {
+        let array = []
+        for (const i in this.genetics) {
+            array.push(`${this.traits[i][1][this.geneticIndex(i)]} ${this.traits[i][0]}`)
+        }
+        return array.join(", ")
     }
 
     // Find mate that is close enough
@@ -155,7 +177,7 @@ class Rabbit {
         if (this.health <= 0) this.delete()
         this.tryMove()
         this.move(0.1)
-        let element = updateRabbit(id)
+        let element = updateRabbit(id, this)
         moveCentered(element, this.position.x, this.position.y)
         let phenotypes = this.phenotypeFormat()
         if (phenotypes["fur"] == "brown") { // Is brown
@@ -177,6 +199,7 @@ class Population {
         this.untilGeneration = 0
         this.generationDelay = options.generationDelay || 5000 // Time in ms between generations
         this.overpopulation = options.overpopulation || 500 // Max rabbits before overpopulation
+        this.background = options.background || 0 // Background as dirt or snow
         this.rabbits = []
         this.traits = {
             "names": [],
@@ -319,32 +342,51 @@ let rabbit2 = sim.addRabbit()
 rabbit1.genetics = ["10", "10", "10", "10"]
 rabbit2.genetics = ["10", "10", "10", "10"]
 
-sim.update()
-
-// Worst case, only runs every second
-// setTimeout(() => {
-//     sim.update()
-// },1000)
-// setTimeout(() => {
-//     sim.update()
-// },2000)
-// setTimeout(() => {
-//     sim.update()
-// },3000)
-// setTimeout(() => {
-//     sim.update()
-// },4000)
-// setTimeout(() => {
-//     sim.update()
-// },5000)
-// setTimeout(() => {
-//     sim.update()
-// },6000)
-
+// Update sim and cursorInfo
 setInterval(() => {
     sim.update()
+    cursorInfo(cursorPos.x, cursorPos.y)
 }, 50)
 
+// Draw
+function drawCursorInfo(text, x, y, offset=0) {
+    let cursorinfo = document.getElementById("cursorInfo")
+    if (sim.background == 0) {
+        // Dirt background
+        cursorinfo.style.color = "white"
+    } else {
+        // Snow background
+        cursorinfo.style.color = "black"
+    }
+    cursorinfo.style.left = (x + 10) + "px"
+    cursorinfo.style.top = (y - offset - 40) + "px"
+    cursorinfo.innerHTML = text
+}
+
+cursorPos = { x: 0, y: 0 }
+
+// Cursor Info
+function cursorInfo(x, y) {
+    // Clear
+    drawCursorInfo("", x, y)
+    // Display rabbit genetics
+    let element = document.elementFromPoint(x, y)
+    if (element.parentElement.id == "rabbit-zone") { // Element is a rabbit
+        let id = Array.from(element.parentElement.children).indexOf(element)
+        drawCursorInfo(`${sim.rabbits[id].genetics.join("")}<br>${sim.rabbits[id].phenotypeVisual()}`, x, y)
+    }
+}
+
+document.onmousemove = (event) => {
+    cursorPos = {
+        x: event.clientX,
+        y: event.clientY
+    }
+    cursorInfo(event.clientX, event.clientY)
+}
+
+
+//// Notes
 // Mark as 0 and 1, showing dominant or recessive (ex. 11 is AA 10 is Aa 00 is aa)
 // In order to mix, we have to generate combinations of each genotype into rows and columns.
 // Mixing: (An example with AaBbCC x AAbbcc) No need for swapping.

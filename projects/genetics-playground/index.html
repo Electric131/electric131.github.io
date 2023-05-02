@@ -38,7 +38,7 @@
     </style>
 </head>
 
-<body>
+<body style="background-color:DimGray;">
     <div class="banner">
         <a href="/" class="button-home">Home</a>
     </div>
@@ -49,11 +49,19 @@
         <div id="info-screen" style="background-color:blue; width:320px; height:500px; border-style:solid; float:right;">
             <h3 id="code">Game Info (Code:)</h3>
             <p id="population">Rabbit Count: 2/500</p>
+            <div id="settings" style="margin-top:10px; margin-bottom:10px">
+                <button id="begin">Start Simulation</button>
+                <button id="dirt_background">Dirt</button>
+                <button id="snow_background">Snow</button>
+            </div>
+            <button id="fur_white">White Fur</button>
+            <p id="genetics">10101010 - 2/2 (100%)</p>
         </div>
         <script>
             const a="abcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()~?";const b=a.split("");let c="";for(let i=0;i<6;i++){c+=b[Math.floor(Math.random()*b.length)];}document.getElementById("code").innerHTML=`Game Info (Code:${c})`
         </script>
     </div>
+    <p id="cursorInfo" style="position:absolute; user-select:none;"></p>
 </body>
 
 </html>
