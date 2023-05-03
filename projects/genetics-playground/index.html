@@ -48,20 +48,29 @@
         </div>
         <div id="info-screen" style="background-color:blue; width:320px; height:500px; border-style:solid; float:right;">
             <h3 id="code">Game Info (Code:)</h3>
-            <p id="population">Rabbit Count: 2/500</p>
-            <div id="settings" style="margin-top:10px; margin-bottom:10px">
-                <button id="begin">Start Simulation</button>
-                <button id="dirt_background">Dirt</button>
-                <button id="snow_background">Snow</button>
+            <p id="population">Rabbit Count: 0/500</p>
+            <p id="generations">Generation: 0</p>
+            <div id="settings" style="margin-left:10px; margin-top:10px; margin-bottom:10px">
+                <button id="begin" onclick="start()">Start Simulation</button>
+                <button id="dirt_background" onclick="switchBackground(0)">Dirt</button>
+                <button id="snow_background" onclick="switchBackground(1)">Snow</button>
+                <div id="dominant-settings" style="margin-top:10px; margin-bottom:10px">
+                    <button id="fur_white" onclick="settings.fur=0">White Fur</button> <button id="fur_brown" onclick="settings.fur=1">Brown Fur</button> <br>
+                    <button id="coat_thin" onclick="settings.coat=0">Thin Coat</button> <button id="coat_thick" onclick="settings.coat=1">Thick Coat</button> <br>
+                    <button id="teeth_short" onclick="settings.teeth=0">Short Teeth</button> <button id="teeth_long" onclick="settings.teeth=1">Long Teeth</button> <br>
+                    <button id="ears_short" onclick="settings.ears=0">Short Ears</button> <button id="ears_floppy" onclick="settings.ears=1">Floppy Ears</button> <br>
+                </div>
             </div>
-            <button id="fur_white">White Fur</button>
-            <p id="genetics">10101010 - 2/2 (100%)</p>
+            <div id="ingame-settings" style="visibility:hidden">
+                <p id="dominant-list">Dominant Fur: White<br>Dominant Coat: Thick<br>Dominant Teeth: Short<br>Dominant Ears: Short</p>
+                <p id="genetics">10101010 - 2/2 (100%)</p>
+            </div>
         </div>
         <script>
-            const a="abcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()~?";const b=a.split("");let c="";for(let i=0;i<6;i++){c+=b[Math.floor(Math.random()*b.length)];}document.getElementById("code").innerHTML=`Game Info (Code:${c})`
+            const a="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";const b=a.split("");let c="";for(let i=0;i<6;i++){c+=b[Math.floor(Math.random()*b.length)];}document.getElementById("code").innerHTML=`Game Info (Code:${c})`
         </script>
     </div>
-    <p id="cursorInfo" style="position:absolute; user-select:none;"></p>
+    <p id="cursor-info" style="position:absolute; user-select:none;"></p>
 </body>
 
 </html>

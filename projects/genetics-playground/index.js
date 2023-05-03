@@ -24,6 +24,11 @@ function moveCentered(element, x, y) {
     element.style.left = ((20 + x) * size + 10).toString() + "px"
 }
 
+function titleCase(str) {
+    if (!str) return ""
+    return str.toLowerCase().replace(/\b\w/g, s => s.toUpperCase());
+}
+
 function updateRabbit(id, rabbit=None) {
     let rabbitZone = document.getElementById("rabbit-zone")
     // Not enough rabbits yet, add more
@@ -35,7 +40,7 @@ function updateRabbit(id, rabbit=None) {
         rabbitZone.appendChild(rabbit)
     }
     if (rabbit.state == "dead") {
-        rabbitZone.removeChild(rabbitZone.children[id])
+        rabbitZone.children[id].remove()
     }
     return rabbitZone.children[id]
 }
@@ -48,6 +53,7 @@ class Rabbit {
         this.position = { x: 0, y: 0 }
         this.population = null
         this.mate = null
+        this.age = 0
         this.food = 0
         this.health = 100
         this.temperature = 0
@@ -174,6 +180,10 @@ class Rabbit {
     // Runs an update on this rabbit, changing position, health, temperature, ect.
     update(id=0) {
         this.updates += 1
+        if (this.population.untilGeneration == 0) this.age += 1
+        if (this.age >= 10) { // Die after 10 generations
+            this.health = 0
+        }
         if (this.health <= 0) this.delete()
         this.tryMove()
         this.move(0.1)
@@ -276,12 +286,12 @@ class Population {
     // Pick mates and breed into next generation
     nextGeneration() {
         if (this.rabbits.length > this.overpopulation) {
-            alert("Overpopulation reached")
             this.running = false
             this.endReason = "overpopulation"
             return false
         }
         this.generation += 1
+        document.getElementById("generations").innerHTML = `Generation: ${this.generation}`
         let bred = []
         let breeding = [...this.rabbits]
         for (const rabbit of breeding) {
@@ -325,64 +335,110 @@ class Population {
     }
 }
 
-let sim = new Population({
-    overpopulation: 100,
-    generationDelay: 5000,
-    background: 0, // Default snowy background
-})
+function start() {
 
-sim.addTrait("fur", ["white", "brown"])
-sim.addTrait("coat", ["thin", "thick"])
-sim.addTrait("teeth", ["short", "long"])
-sim.addTrait("ears", ["short", "floppy"])
-
-let rabbit1 = sim.addRabbit()
-let rabbit2 = sim.addRabbit()
-
-rabbit1.genetics = ["10", "10", "10", "10"]
-rabbit2.genetics = ["10", "10", "10", "10"]
-
-// Update sim and cursorInfo
-setInterval(() => {
-    sim.update()
-    cursorInfo(cursorPos.x, cursorPos.y)
-}, 50)
-
-// Draw
-function drawCursorInfo(text, x, y, offset=0) {
-    let cursorinfo = document.getElementById("cursorInfo")
-    if (sim.background == 0) {
-        // Dirt background
-        cursorinfo.style.color = "white"
-    } else {
-        // Snow background
-        cursorinfo.style.color = "black"
+    traits = {
+        fur: ["white", "brown"],
+        coat: ["thin", "thick"],
+        teeth: ["short", "long"],
+        ears: ["short", "floppy"]
     }
-    cursorinfo.style.left = (x + 10) + "px"
-    cursorinfo.style.top = (y - offset - 40) + "px"
-    cursorinfo.innerHTML = text
+
+    document.getElementById("settings").remove()
+    document.getElementById("dominant-list").innerHTML = `Dominant Fur: ${titleCase(traits.fur[settings.fur])}<br>Dominant Coat: ${titleCase(traits.coat[settings.coat])}<br>Dominant Teeth: ${titleCase(traits.teeth[settings.teeth])}<br>Dominant Ears: ${titleCase(traits.ears[settings.ears])}`
+    document.getElementById("ingame-settings").style.visibility = "visible"
+
+    let sim = new Population({
+        overpopulation: 100,
+        generationDelay: 5000,
+        background: settings.background,
+    })
+
+    if (settings.fur == 1) {
+        traits.fur.reverse()
+    }
+    if (settings.coat == 1) {
+        traits.coat.reverse()
+    }
+    if (settings.teeth == 1) {
+        traits.teeth.reverse()
+    }
+    if (settings.ears == 1) {
+        traits.ears.reverse()
+    }
+
+    sim.addTrait("fur", traits.fur)
+    sim.addTrait("coat", traits.coat)
+    sim.addTrait("teeth", traits.teeth)
+    sim.addTrait("ears", traits.ears)
+
+    let rabbit1 = sim.addRabbit()
+    let rabbit2 = sim.addRabbit()
+
+    rabbit1.genetics = ["10", "10", "10", "10"]
+    rabbit2.genetics = ["10", "10", "10", "10"]
+
+    // Update sim and cursorInfo
+    setInterval(() => {
+        if (sim.running) {
+            sim.update()
+        }
+        cursorInfo(cursorPos.x, cursorPos.y)
+    }, 50)
+
+    // Draw
+    function drawCursorInfo(text, x, y, offset=0) {
+        let cursorinfo = document.getElementById("cursor-info")
+        if (sim.background == 0) {
+            // Dirt background
+            cursorinfo.style.color = "white"
+        } else {
+            // Snow background
+            cursorinfo.style.color = "black"
+        }
+        cursorinfo.style.left = (x + 10) + "px"
+        cursorinfo.style.top = (y - offset - 40) + "px"
+        cursorinfo.innerHTML = text
+    }
+
+    cursorPos = { x: 0, y: 0 }
+
+    // Cursor Info
+    function cursorInfo(x, y) {
+        // Clear
+        drawCursorInfo("", x, y)
+        // Display rabbit genetics
+        let element = document.elementFromPoint(x, y)
+        if (element.parentElement.id == "rabbit-zone") { // Element is a rabbit
+            let id = Array.from(element.parentElement.children).indexOf(element)
+            drawCursorInfo(`${sim.rabbits[id].genetics.join("")}<br>${sim.rabbits[id].phenotypeVisual()}`, x, y)
+        }
+    }
+
+    document.onmousemove = (event) => {
+        cursorPos = {
+            x: event.clientX,
+            y: event.clientY
+        }
+        cursorInfo(event.clientX, event.clientY)
+    }
 }
 
-cursorPos = { x: 0, y: 0 }
-
-// Cursor Info
-function cursorInfo(x, y) {
-    // Clear
-    drawCursorInfo("", x, y)
-    // Display rabbit genetics
-    let element = document.elementFromPoint(x, y)
-    if (element.parentElement.id == "rabbit-zone") { // Element is a rabbit
-        let id = Array.from(element.parentElement.children).indexOf(element)
-        drawCursorInfo(`${sim.rabbits[id].genetics.join("")}<br>${sim.rabbits[id].phenotypeVisual()}`, x, y)
-    }
+let settings = {
+    background: 0,
+    fur: 0,
+    coat: 0,
+    teeth: 0,
+    ears: 0
 }
 
-document.onmousemove = (event) => {
-    cursorPos = {
-        x: event.clientX,
-        y: event.clientY
+function switchBackground(id) {
+    settings.background = id
+    if (id == 0) {
+        document.getElementById('rabbit-zone').style.backgroundImage = "url('dirt.jpg')"
+        return
     }
-    cursorInfo(event.clientX, event.clientY)
+    document.getElementById('rabbit-zone').style.backgroundImage = "url('snow.jpg')"
 }
 
 
