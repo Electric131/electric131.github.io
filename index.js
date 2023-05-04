@@ -26,7 +26,7 @@ function load_project(name) {
         res.json().then(data => {
             document.querySelector("#projects").innerHTML += `<div class="hero-wrapper">
     <div class="hero-split">
-        <img src="/projects/${name}/thumbnail.${data.thumbnailtype}" loading="lazy" alt="Thumbnail" class="shadow-two thumbnail">
+        <img src="/projects/${name}/thumbnail.${data.thumbnailtype}" loading="lazy" alt="Thumbnail" class="shadow-two thumbnail" style="width:100%;">
     </div>
     <div class="hero-split">
         <h1>${data.title}</h1>

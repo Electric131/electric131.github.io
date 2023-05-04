@@ -38,15 +38,15 @@
     </style>
 </head>
 
-<body style="background-color:DimGray;">
+<body style="background-color:DimGray; overflow:hidden">
     <div class="banner">
         <a href="/" class="button-home">Home</a>
     </div>
-    <div style="padding: 2px 10px;">
+    <div style="padding: 2px 10px; overflow:hidden">
         <b>Disclaimer: I don't use much HTML, so this will not look right on some devices</b>
         <div id="rabbit-zone" style="width:900px; height:500px; border-style:solid; float:left; background-image:url('dirt.jpg'); background-repeat: no-repeat; background-size: 100% 100%; overflow:hidden;">
         </div>
-        <div id="info-screen" style="background-color:blue; width:320px; height:500px; border-style:solid; float:right;">
+        <div id="info-screen" style="background-color:blue; width:320px; height:500px; border-style:solid; float:right; overflow:hidden">
             <h3 id="code">Game Info (Code:)</h3>
             <p id="population">Rabbit Count: 0/500</p>
             <p id="generations">Generation: 0</p>
@@ -61,8 +61,11 @@
                     <button id="ears_short" onclick="settings.ears=0">Short Ears</button> <button id="ears_floppy" onclick="settings.ears=1">Floppy Ears</button> <br>
                 </div>
             </div>
-            <div id="ingame-settings" style="visibility:hidden">
+            <div id="ingame-settings" style="visibility:hidden; overflow:hidden">
+                <p id="end" style="color:red"></p>
                 <p id="dominant-list">Dominant Fur: White<br>Dominant Coat: Thick<br>Dominant Teeth: Short<br>Dominant Ears: Short</p>
+                <label for="wolves">Wolves</label> <input type="checkbox" id="wolves" value="wolves" onclick="let box1=document.getElementById('wolves'); settings.wolves=box1.checked">
+                <label for="tough-food">Tougher Food</label> <input type="checkbox" id="tough-food" value="food" onclick="let box2=document.getElementById('tough-food'); settings.toughFood=box2.checked">
                 <p id="genetics">10101010 - 2/2 (100%)</p>
             </div>
         </div>

@@ -56,7 +56,6 @@ class Rabbit {
         this.age = 0
         this.food = 0
         this.health = 100
-        this.temperature = 0
         this.updates = 0
         this.target = { x: 0, y: 0 }
         this.wasAtTarget = false
@@ -180,7 +179,34 @@ class Rabbit {
     // Runs an update on this rabbit, changing position, health, temperature, ect.
     update(id=0) {
         this.updates += 1
-        if (this.population.untilGeneration == 0) this.age += 1
+        let phenotypes = this.phenotypeFormat()
+        if (this.population.untilGeneration == 0) { // When a generation update happens.
+            this.age += 1
+            // Freeze or Overheat
+            if (this.population.background == 0 && phenotypes.coat == "thick") {
+                this.health -= 25
+            }
+            if (this.population.background == 1 && phenotypes.coat == "thin") {
+                this.health -= 25
+            }
+            // Wolf deaths
+            if (settings.wolves && phenotypes.fur == "white" && this.population.background == 0 && (Math.random() * 10 >= 1)) {
+                this.health -= 100
+            }
+            if (settings.wolves && phenotypes.fur == "white" && this.population.background == 1 && (Math.random() * 10 <= 1)) {
+                this.health -= 100
+            }
+            if (settings.wolves && phenotypes.fur == "brown" && this.population.background == 0 && (Math.random() * 10 <= 1)) {
+                this.health -= 100
+            }
+            if (settings.wolves && phenotypes.fur == "brown" && this.population.background == 1 && (Math.random() * 10 >= 1)) {
+                this.health -= 100
+            }
+            // Tough food
+            if (settings.toughFood && phenotypes.teeth == "short") {
+                this.health -= 50
+            }
+        }
         if (this.age >= 10) { // Die after 10 generations
             this.health = 0
         }
@@ -189,8 +215,7 @@ class Rabbit {
         this.move(0.1)
         let element = updateRabbit(id, this)
         moveCentered(element, this.position.x, this.position.y)
-        let phenotypes = this.phenotypeFormat()
-        if (phenotypes["fur"] == "brown") { // Is brown
+        if (phenotypes.fur == "brown") { // Is brown
             element.src = "rabbit_brown.png"
         } else {
             element.src = "rabbit_white.png"
@@ -325,12 +350,31 @@ class Population {
                 this.untilGeneration = 0
                 this.nextGeneration()
             }
+            if (this.rabbits.length == 0) {
+                this.running = false
+                this.endReason = "extinction"
+            }
             document.getElementById("population").innerHTML = `Rabbit Count: ${this.rabbits.length}/${this.overpopulation}`
             let i = 0
+            let geneticsList = document.getElementById("genetics")
+            let count = {}
+            let list = []
             for (const rabbit of this.rabbits) {
                 rabbit.update(i) // Update rabbit data (ex. movement, health, or energy)
+                let geneticString = rabbit.genetics.join("")
+                if (!count[geneticString]) count[geneticString] = 0
+                count[geneticString] += 1
                 i++
             }
+            let sort = Object.entries(count)
+            sort.sort((a, b) => {
+                return b[1] - a[1]
+            })
+            let total = this.rabbits.length
+            for (const [key, value] of sort) {
+                list.push(`${key} - ${value}/${total} (${((value/total)*100).toFixed(2)}%)`)
+            }
+            geneticsList.innerHTML = list.join("<br>")
         }
     }
 }
@@ -382,6 +426,8 @@ function start() {
     setInterval(() => {
         if (sim.running) {
             sim.update()
+        } else {
+            document.getElementById("end").innerHTML = `Your population has died due to ${sim.endReason}!`
         }
         cursorInfo(cursorPos.x, cursorPos.y)
     }, 50)
@@ -411,7 +457,8 @@ function start() {
         let element = document.elementFromPoint(x, y)
         if (element.parentElement.id == "rabbit-zone") { // Element is a rabbit
             let id = Array.from(element.parentElement.children).indexOf(element)
-            drawCursorInfo(`${sim.rabbits[id].genetics.join("")}<br>${sim.rabbits[id].phenotypeVisual()}`, x, y)
+            let rabbit = sim.rabbits[id]
+            drawCursorInfo(`Health: ${rabbit.health}<br>${rabbit.genetics.join("")}<br>${rabbit.phenotypeVisual()}`, x, y - 30)
         }
     }
 
@@ -429,7 +476,9 @@ let settings = {
     fur: 0,
     coat: 0,
     teeth: 0,
-    ears: 0
+    ears: 0,
+    wolves: false,
+    toughFood: false
 }
 
 function switchBackground(id) {
@@ -440,7 +489,6 @@ function switchBackground(id) {
     }
     document.getElementById('rabbit-zone').style.backgroundImage = "url('snow.jpg')"
 }
-
 
 //// Notes
 // Mark as 0 and 1, showing dominant or recessive (ex. 11 is AA 10 is Aa 00 is aa)
