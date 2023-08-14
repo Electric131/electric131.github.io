@@ -6,7 +6,7 @@ let userInputs = [0, 0]
 let wfc
 
 function setup() {
-    createCanvas(1200, 600)
+    createCanvas(1280, 640)
     angleMode(DEGREES)
     noStroke()
     frameRate(60)
@@ -14,36 +14,36 @@ function setup() {
         tiles: [
             new Tile({
                 name: "Blank",
-                draw: function(x, y) {
-                    fill(color("#0000BB"))
-                    rect(x * 40, y * 40, 32, 32)
-                },
+                draw: function(x, y) {},
                 edges: {
                     up: 0,
                     right: 0,
                     down: 0,
                     left: 0
-                }
+                },
+                weight: 10
             }),
             new Tile({
                 name: "Straight-Horizontal",
-                draw: function(x, y) { drawTrack(x, y, 'straight', 90) },
+                draw: function(x, y) { drawTrack(x, y, 'straight', 0) },
                 edges: {
                     up: 0,
                     right: 1,
                     down: 0,
                     left: 1
-                }
+                },
+                weight: 20
             }),
             new Tile({
                 name: "Straight-Vertical",
-                draw: function(x, y) { drawTrack(x, y, 'straight', 0) },
+                draw: function(x, y) { drawTrack(x, y, 'straight', 90) },
                 edges: {
                     up: 1,
                     right: 0,
                     down: 1,
                     left: 0
-                }
+                },
+                weight: 20
             }),
             new Tile({
                 name: "Turn-1",
@@ -53,7 +53,8 @@ function setup() {
                     right: 1,
                     down: 1,
                     left: 0
-                }
+                },
+                weight: 5
             }),
             new Tile({
                 name: "Turn-2",
@@ -63,7 +64,8 @@ function setup() {
                     right: 0,
                     down: 1,
                     left: 1
-                }
+                },
+                weight: 5
             }),
             new Tile({
                 name: "Turn-3",
@@ -73,7 +75,8 @@ function setup() {
                     right: 0,
                     down: 0,
                     left: 1
-                }
+                },
+                weight: 5
             }),
             new Tile({
                 name: "Turn-4",
@@ -83,14 +86,18 @@ function setup() {
                     right: 1,
                     down: 0,
                     left: 0
-                }
+                },
+                weight: 5
             })
-        ]
+        ],
+        width: 10,
+        height: 5
     })
     car = new Car()
     car2 = new Car()
     car.position = { x: 200, y: 200 }
     car2.position = { x: 150, y: 150 }
+    wfc.beginCollapse()
 }
 
 function drawTrack(mapx, mapy, type="straight", rotation=0) {
@@ -131,11 +138,12 @@ class Car {
         this.acceleration = { x: 0, y: 0 }
         this.direction = 0
         this.speed = 0.08
-        this.reverseSpeed = 0.23
+        this.reverseSpeed = 0.5
         this.turnSpeed = 3
         this.turnFactor = 0.2
         this.accelerationFriction = 0.86
         this.velocityFriction = 0.92
+        this.grassFriction = 0.95
     }
 
     // Inputs should be an array (length 2) consisting of WS and AD of either -1 or 1 values.
@@ -159,6 +167,9 @@ class Car {
         this.velocity.y += this.acceleration.y
         this.velocity.x *= this.velocityFriction
         this.velocity.y *= this.velocityFriction
+        let color = get(this.position.x, this.position.y)
+        if (color[1] == 170) this.velocity.x *= this.grassFriction
+        if (color[1] == 170) this.velocity.y *= this.grassFriction
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
         if (this.position.x > width) this.position.x = width
@@ -183,11 +194,19 @@ function draw() {
     userInputs[0] = (keyIsDown(UP_ARROW) || keyIsDown(87)) - (keyIsDown(DOWN_ARROW) || keyIsDown(83))
     userInputs[1] = (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) - (keyIsDown(LEFT_ARROW) || keyIsDown(65))
     background('#00AA00')
-    drawTrack(0, 0, 'turn', 0)
-    drawTrack(0, 1, 'turn', 270)
+    // drawTrack(0, 0, 'turn', 0)
+    // drawTrack(0, 1, 'turn', 270)
+    // drawTrack(1, 0, 'straight', 0)
+    // drawTrack(2, 0, 'straight', 0)
+    // drawTrack(3, 0, 'straight', 0)
+    // drawTrack(4, 0, 'straight', 0)
+    // drawTrack(5, 0, 'straight', 0)
+    // drawTrack(6, 0, 'straight', 0)
+    // drawTrack(2, 1, 'straight', 90)
+    // wfc.drawAll()
     car.update(userInputs)
     car2.update([0, 0])
-    // wfc.drawAll()
+    // wfc.iterate()
 }
 
 function keyPressed() {
