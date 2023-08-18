@@ -1,3 +1,4 @@
 genetics-playground
 car-demo
 wfc
+game-of-life
