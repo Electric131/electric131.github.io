@@ -160,7 +160,18 @@ class WaveFunction {
     beginCollapse() {
         let row = random(this.cells)
         let cell = random(row)
-        cell.randomAssign()
+        // Force deep water for cooler islands :)
+        let valid = false
+        for (const option of cell.options) {
+            if (option.type == "deep_ocean") {
+                cell.tile = option
+                valid = true
+                break
+            }
+        }
+        if (!valid) {
+            cell.randomAssign()
+        }
         cell.update()
     }
 
