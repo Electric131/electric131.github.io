@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Story Maker</title>
+	<script src="https://unpkg.com/blockly/blockly.min.js"></script>
+	<script src="index.js"></script>
+
+	<style>
+		html,
+		body {
+			height: 100%;
+		}
+
+		body {
+			background-color: #fff;
+			font-family: sans-serif;
+			overflow: hidden;
+		}
+
+		h1 {
+			font-weight: normal;
+			font-size: 140%;
+			margin: 10px;
+		}
+
+		#blocklyDiv {
+			float: bottom;
+			height: 90%;
+			width: 100%;
+		}
+	</style>
+</head>
+
+<body onload="start()" onbeforeunload="return checkChanges()" id="body">
+	<h1>Story Maker</h1>
+	<div id="buttonBar", style="display:inline;">
+		<button onclick="save()">Save</button>
+		<button onclick="load()">Load</button>
+		<button onclick="downloadFile()">Export</button>
+		<a id="download" style="display:none"></a>
+		<button onclick="pickFile()">Import</button>
+		<button onclick="run()">Run</button>
+		<button onclick="reset()">Clear</button>
+	</div>
+	<div id="blocklyDiv"></div>
+	<div style="top:10%; left:10%; width:80%; height:80%; position:fixed; background-color:rgb(121, 121, 121); overflow:hidden; visibility:hidden;" id="run">
+		<button onclick="stopCode()" style="color:rgb(255, 255, 255); background-color:rgb(202, 0, 0)">Stop</button>
+		<div style="padding-left:10px; padding-right:10px; padding-bottom:10px; overflow:hidden">
+			<h1 id="ending-title" style="font-size:200%">Ending</h1>
+			<p id="typewriter-show">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque at nulla eu metus mollis lobortis eget vel nisl. Aenean vestibulum turpis sed mattis consectetur. Donec auctor mollis risus. Nulla euismod lacus eget nunc venenatis, vel fermentum lectus porttitor. Suspendisse porttitor, magna a scelerisque volutpat, diam velit semper neque, ut viverra tellus lacus vel sapien. Cras fermentum consectetur urna et iaculis. Nam accumsan, ante sed scelerisque blandit, est sapien ornare purus, vel semper nunc quam eu lorem. Sed hendrerit ipsum quis consectetur lacinia. Mauris rhoncus ultricies nulla, ac egestas velit pellentesque vel. Quisque placerat, ligula ac bibendum pellentesque, nibh quam rhoncus turpis, eu rhoncus tellus mi a neque. Sed tellus eros, vulputate quis laoreet vel, ullamcorper ut augue. Vivamus semper scelerisque mauris, ut luctus purus vestibulum tincidunt. Morbi vitae dictum magna.</p>
+			<div id="choices">
+				<button style="height:20px; width:20%; overflow:hidden">Example 1</button>
+				<button style="height:20px; width:20%; overflow:hidden">Example 2</button>
+				<button style="height:20px; width:20%; overflow:hidden">Example 3</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Toolbox Definition -->
+	<xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+		<category name="Flow" colour="#5b80a5">
+			<block type="goto"></block>
+			<block type="label"></block>
+			<block type="wait"></block>
+		</category>
+		<category name="Actions" colour="#5ba55b">
+			<block type="ending"></block>
+			<block type="choice"></block>
+			<block type="choose"></block>
+			<block type="typewrite"></block>
+		</category>
+		<category name="Logic" colour="#9fa55b">
+			<block type="set"></block>
+			<block type="increment"></block>
+			<block type="decrement"></block>
+            <block type="if"></block>
+            <block type="ifelse"></block>
+		</category>
+	</xml>
+</body>
+
+</html>
