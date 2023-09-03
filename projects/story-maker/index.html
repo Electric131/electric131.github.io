@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 
@@ -5,6 +6,7 @@
 	<meta charset="utf-8">
 	<title>Story Maker</title>
 	<script src="https://unpkg.com/blockly/blockly.min.js"></script>
+	<script src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
 	<script src="index.js"></script>
 
 	<style>
@@ -49,7 +51,7 @@
 		<button onclick="stopCode()" style="color:rgb(255, 255, 255); background-color:rgb(202, 0, 0)">Stop</button>
 		<div style="padding-left:10px; padding-right:10px; padding-bottom:10px; overflow:hidden">
 			<h1 id="ending-title" style="font-size:200%">Ending</h1>
-			<p id="typewriter-show">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque at nulla eu metus mollis lobortis eget vel nisl. Aenean vestibulum turpis sed mattis consectetur. Donec auctor mollis risus. Nulla euismod lacus eget nunc venenatis, vel fermentum lectus porttitor. Suspendisse porttitor, magna a scelerisque volutpat, diam velit semper neque, ut viverra tellus lacus vel sapien. Cras fermentum consectetur urna et iaculis. Nam accumsan, ante sed scelerisque blandit, est sapien ornare purus, vel semper nunc quam eu lorem. Sed hendrerit ipsum quis consectetur lacinia. Mauris rhoncus ultricies nulla, ac egestas velit pellentesque vel. Quisque placerat, ligula ac bibendum pellentesque, nibh quam rhoncus turpis, eu rhoncus tellus mi a neque. Sed tellus eros, vulputate quis laoreet vel, ullamcorper ut augue. Vivamus semper scelerisque mauris, ut luctus purus vestibulum tincidunt. Morbi vitae dictum magna.</p>
+			<div id="typewriter-show"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque at nulla eu metus mollis lobortis eget vel nisl. Aenean vestibulum turpis sed mattis consectetur. Donec auctor mollis risus. Nulla euismod lacus eget nunc venenatis, vel fermentum lectus porttitor. Suspendisse porttitor, magna a scelerisque volutpat, diam velit semper neque, ut viverra tellus lacus vel sapien. Cras fermentum consectetur urna et iaculis. Nam accumsan, ante sed scelerisque blandit, est sapien ornare purus, vel semper nunc quam eu lorem. Sed hendrerit ipsum quis consectetur lacinia. Mauris rhoncus ultricies nulla, ac egestas velit pellentesque vel. Quisque placerat, ligula ac bibendum pellentesque, nibh quam rhoncus turpis, eu rhoncus tellus mi a neque. Sed tellus eros, vulputate quis laoreet vel, ullamcorper ut augue. Vivamus semper scelerisque mauris, ut luctus purus vestibulum tincidunt. Morbi vitae dictum magna.</p></div>
 			<div id="choices">
 				<button style="height:20px; width:20%; overflow:hidden">Example 1</button>
 				<button style="height:20px; width:20%; overflow:hidden">Example 2</button>
@@ -75,8 +77,11 @@
 			<block type="set"></block>
 			<block type="increment"></block>
 			<block type="decrement"></block>
+			<block type="clear"></block>
             <block type="if"></block>
             <block type="ifelse"></block>
+			<block type="ifexists"></block>
+            <block type="ifexistselse"></block>
 		</category>
 	</xml>
 </body>

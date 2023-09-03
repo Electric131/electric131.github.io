@@ -1,7 +1,10 @@
+
 'use strict'
 
 let workspace = null
 var waitHandler = null
+let vars = {}
+const converter = new showdown.Converter()
 
 // Formats a string to be safe
 function safeGet(value) {
@@ -12,6 +15,7 @@ function safeGet(value) {
 function checkVar(varName) {
     var check = varName.replace(/([A-Za-z\d_.])+/g, "")
     if (check.length > 0) throw new Error("Variable name contains invalid characters. Variables can only contain letters, numbers, as well as '.' and '_'.")
+    if (varName.length == 0) throw new Error("Variable name cannot be left blank.")
     return true
 }
 
@@ -28,7 +32,7 @@ function start() {
         ],
         "previousStatement": null,
         "colour": 210,
-        "tooltip": "",
+        "tooltip": "Runs the code under the specified label. Also halts the rest of the line.",
         "helpUrl": ""
     },
     {
@@ -43,7 +47,7 @@ function start() {
         ],
         "nextStatement": null,
         "colour": 210,
-        "tooltip": "",
+        "tooltip": "Creates a spot to be jumped to from anywhere.",
         "helpUrl": ""
     },
     {
@@ -63,7 +67,7 @@ function start() {
         ],
         "previousStatement": null,
         "colour": 105,
-        "tooltip": "",
+        "tooltip": "Shows the user an ending screen. Also halts the rest of the line.",
         "helpUrl": ""
     },
     {
@@ -86,7 +90,7 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 105,
-        "tooltip": "",
+        "tooltip": "Adds the given text to the choice queue and runs the code inside when clicked.",
         "helpUrl": ""
     },
     {
@@ -104,7 +108,7 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 210,
-        "tooltip": "",
+        "tooltip": "Waits a specified amount of time. (In seconds)",
         "helpUrl": ""
     },
     {
@@ -119,14 +123,14 @@ function start() {
             {
                 "type": "field_number",
                 "name": "AMOUNT",
-                "value": 0,
+                "value": 1,
                 "precision": 0.01
             }
         ],
         "previousStatement": null,
         "nextStatement": null,
         "colour": 60,
-        "tooltip": "",
+        "tooltip": "Adds the specified amount to the specified variable.",
         "helpUrl": ""
     },
     {
@@ -141,14 +145,14 @@ function start() {
             {
                 "type": "field_number",
                 "name": "AMOUNT",
-                "value": 0,
+                "value": 1,
                 "precision": 0.01
             }
         ],
         "previousStatement": null,
         "nextStatement": null,
         "colour": 60,
-        "tooltip": "",
+        "tooltip": "Removes the specified amount from the specified variable.",
         "helpUrl": ""
     },
     {
@@ -170,7 +174,7 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 60,
-        "tooltip": "",
+        "tooltip": "Sets a specified variable to a specified number.",
         "helpUrl": ""
     },
     {
@@ -178,12 +182,12 @@ function start() {
         "message0": "choose",
         "previousStatement": null,
         "colour": 105,
-        "tooltip": "Present the current choice list to the user",
+        "tooltip": "Present the current choice list to the user. Also halts the rest of the line.",
         "helpUrl": ""
     },
     {
         "type": "typewrite",
-        "message0": "typewrite %1 at %2 seconds per character %3 Instant: %4",
+        "message0": "typewrite %1 at %2 seconds per character %3 Instant: %4 (Enabling allows markdown)",
         "args0": [
             {
                 "type": "field_input",
@@ -210,7 +214,7 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 105,
-        "tooltip": "",
+        "tooltip": "Writes out the given text to the screen.",
         "helpUrl": ""
     },
     {
@@ -268,7 +272,7 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 15,
-        "tooltip": "",
+        "tooltip": "Compares one variable to another.",
         "helpUrl": ""
     },
     {
@@ -333,10 +337,78 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 15,
-        "tooltip": "",
+        "tooltip": "Compares one variable to another.",
         "helpUrl": ""
-    }
-    ]);
+    },
+    {
+        "type": "clear",
+        "message0": "clear %1",
+        "args0": [
+            {
+                "type": "field_input",
+                "name": "NAME",
+                "text": ""
+            }
+        ],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": 60,
+        "tooltip": "Clears a variable so that it doesn't exist.",
+        "helpUrl": ""
+    },
+    {
+        "type": "ifexists",
+        "message0": "if var %1 exists then %2 %3",
+        "args0": [
+            {
+                "type": "field_input",
+                "name": "VAR",
+                "text": ""
+            },
+            {
+                "type": "input_dummy"
+            },
+            {
+                "type": "input_statement",
+                "name": "NAME"
+            }
+        ],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": 15,
+        "tooltip": "Checks if a specified variable name exists.",
+        "helpUrl": ""
+    },
+    {
+        "type": "ifexistselse",
+        "message0": "if var %1 exists then %2 %3 else %4 %5",
+        "args0": [
+            {
+                "type": "field_input",
+                "name": "VAR",
+                "text": ""
+            },
+            {
+                "type": "input_dummy"
+            },
+            {
+                "type": "input_statement",
+                "name": "IF"
+            },
+            {
+                "type": "input_dummy"
+            },
+            {
+                "type": "input_statement",
+                "name": "ELSE"
+            }
+        ],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": 15,
+        "tooltip": "Checks if a specified variable name exists.",
+        "helpUrl": ""
+    }]);
     // Create main workspace.
     workspace = Blockly.inject('blocklyDiv', {
         toolbox: document.getElementById('toolbox'),
@@ -382,15 +454,15 @@ function start() {
     }
     javascript.javascriptGenerator.forBlock['increment'] = function (block) {
         checkVar(block.getFieldValue('NAME'))
-        return `if (typeof ${safeGet(block.getFieldValue('NAME'))} == "undefined") { var ${safeGet(block.getFieldValue('NAME'))} = 0 }; ${safeGet(block.getFieldValue('NAME'))} += ${block.getFieldValue('AMOUNT')}; `
+        return `if (typeof vars["${safeGet(block.getFieldValue('NAME'))}"] == "undefined") { vars["${safeGet(block.getFieldValue('NAME'))}"] = 0 }; vars["${safeGet(block.getFieldValue('NAME'))}"] += ${block.getFieldValue('AMOUNT')}; `
     }
     javascript.javascriptGenerator.forBlock['decrement'] = function (block) {
         checkVar(block.getFieldValue('NAME'))
-        return `if (typeof ${safeGet(block.getFieldValue('NAME'))} == "undefined") { var ${safeGet(block.getFieldValue('NAME'))} = 0 }; ${safeGet(block.getFieldValue('NAME'))} -= ${block.getFieldValue('AMOUNT')}; `
+        return `if (typeof vars["${safeGet(block.getFieldValue('NAME'))}"] == "undefined") { vars["${safeGet(block.getFieldValue('NAME'))}"] = 0 }; vars["${safeGet(block.getFieldValue('NAME'))}"] -= ${block.getFieldValue('AMOUNT')}; `
     }
     javascript.javascriptGenerator.forBlock['set'] = function (block) {
         checkVar(block.getFieldValue('NAME'))
-        return `var ${safeGet(block.getFieldValue('NAME'))} = ${block.getFieldValue('VALUE')}; `
+        return `vars["${safeGet(block.getFieldValue('NAME'))}"] = ${block.getFieldValue('VALUE')}; `
     }
     javascript.javascriptGenerator.forBlock['typewrite'] = function (block) {
         return `if (await API_typewrite("${safeGet(block.getFieldValue('TEXT'))}", ${block.getFieldValue('SPEED')}, ${block.getFieldValue('INSTANT') == "TRUE"})) return false; `
@@ -401,14 +473,24 @@ function start() {
     javascript.javascriptGenerator.forBlock['if'] = function (block) {
         checkVar(block.getFieldValue('VARA'))
         checkVar(block.getFieldValue('VARB'))
-        if (block.getFieldValue('VARA').length == 0 || block.getFieldValue('VARB').length == 0) throw new Error("If block requires two variable names to compare.")
-        return `if (typeof ${safeGet(block.getFieldValue('VARA'))} == "undefined") { var ${safeGet(block.getFieldValue('VARA'))} = 0 }; if (typeof ${safeGet(block.getFieldValue('VARB'))} == "undefined") { var ${safeGet(block.getFieldValue('VARB'))} = 0 }; if (${safeGet(block.getFieldValue('VARA'))} ${block.getFieldValue('COMPARATOR')} ${safeGet(block.getFieldValue('VARB'))}) { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} }; `
+        return `if (typeof vars["${safeGet(block.getFieldValue('VARA'))}"] == "undefined") { vars["${safeGet(block.getFieldValue('VARA'))}"] = 0 }; if (typeof vars["${safeGet(block.getFieldValue('VARB'))}"] == "undefined") { vars["${safeGet(block.getFieldValue('VARB'))}"] = 0 }; if (vars["${safeGet(block.getFieldValue('VARA'))}"] ${block.getFieldValue('COMPARATOR')} vars["${safeGet(block.getFieldValue('VARB'))}"]) { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} }; `
     }
     javascript.javascriptGenerator.forBlock['ifelse'] = function (block) {
         checkVar(block.getFieldValue('VARA'))
         checkVar(block.getFieldValue('VARB'))
-        if (block.getFieldValue('VARA').length == 0 || block.getFieldValue('VARB').length == 0) throw new Error("If block requires two variable names to compare.")
-        return `if (typeof ${safeGet(block.getFieldValue('VARA'))} == "undefined") { var ${safeGet(block.getFieldValue('VARA'))} = 0 }; if (typeof ${safeGet(block.getFieldValue('VARB'))} == "undefined") { var ${safeGet(block.getFieldValue('VARB'))} = 0 }; if (${safeGet(block.getFieldValue('VARA'))} ${block.getFieldValue('COMPARATOR')} ${safeGet(block.getFieldValue('VARB'))}) { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} } else { ${javascript.javascriptGenerator.statementToCode(block, 'ELSE').trim()} }; `
+        return `if (typeof vars["${safeGet(block.getFieldValue('VARA'))}"] == "undefined") { vars["${safeGet(block.getFieldValue('VARA'))}"] = 0 }; if (typeof vars["${safeGet(block.getFieldValue('VARB'))}"] == "undefined") { vars["${safeGet(block.getFieldValue('VARB'))}"] = 0 }; if (vars["${safeGet(block.getFieldValue('VARA'))}"] ${block.getFieldValue('COMPARATOR')} vars["${safeGet(block.getFieldValue('VARB'))}"]) { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} } else { ${javascript.javascriptGenerator.statementToCode(block, 'ELSE').trim()} }; `
+    }
+    javascript.javascriptGenerator.forBlock['clear'] = function (block) {
+        checkVar(block.getFieldValue('NAME'))
+        return `if (typeof vars["${safeGet(block.getFieldValue('NAME'))}"] != "undefined") { delete vars["${safeGet(block.getFieldValue('NAME'))}"] }; `
+    }
+    javascript.javascriptGenerator.forBlock['ifexists'] = function (block) {
+        checkVar(block.getFieldValue('VAR'))
+        return `if (typeof vars["${safeGet(block.getFieldValue('VARA'))}"] == "undefined") { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} }; `
+    }
+    javascript.javascriptGenerator.forBlock['ifexistselse'] = function (block) {
+        checkVar(block.getFieldValue('VAR'))
+        return `if (typeof vars["${safeGet(block.getFieldValue('VARA'))}"] == "undefined") { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} } else { ${javascript.javascriptGenerator.statementToCode(block, 'ELSE').trim()} }; `
     }
 }
 
@@ -444,6 +526,7 @@ function run() {
     document.getElementById("blocklyDiv").style.visibility = 'hidden'
     choices = []
     labels = {}
+    vars = {}
     headless.clear()
     document.getElementById("ending-title").innerHTML = ""
     document.getElementById("typewriter-show").innerHTML = ""
@@ -464,8 +547,6 @@ function run() {
             }
         }
         API_goto("start")
-        // eval("(async () => {" + code + "})()")
-        // eval(javascript.javascriptGenerator.workspaceToCode(Blockly.getMainWorkspace()))
     } catch (error) {
         alert(error)
         console.error(error)
@@ -530,18 +611,23 @@ function API_addChoice(text, code) {
 
 function API_ending(title, description) {
     document.getElementById("ending-title").innerHTML = title
-    document.getElementById("typewriter-show").innerHTML = description
+    document.getElementById("typewriter-show").innerHTML = converter.makeHtml(description)
 }
 
 async function API_typewrite(text, speed, isInstant) {
+    text = text.replace("\\n", "<br>")
     document.getElementById("typewriter-show").innerHTML = ""
-    if (isInstant) { document.getElementById("typewriter-show").innerHTML = text; return false }
-    for (const char of text.split("")) {
-        document.getElementById("typewriter-show").innerHTML = document.getElementById("typewriter-show").innerHTML + char
+    if (isInstant) { document.getElementById("typewriter-show").innerHTML = converter.makeHtml(text); return false }
+    var cur = ""
+    var i = 0
+    for (const _ of text.split("")) {
+        i++
+        if (i > text.length) { document.getElementById("typewriter-show").innerHTML = text; break }
+        if (text.substring(i, i + 4) == "<br>") { i += 4 }
+        document.getElementById("typewriter-show").innerHTML = "<p>" + text.substring(0, i) + "</p>"
         var res = await Promise.race([delay(speed * 1000), stopCheck()]) // Wait x seconds or until the program is stopped
-        if (res == false) {
-            return true
-        }
+        if (res == false) return true
+        if (i > text.length) { break }
     }
     return false
 }
@@ -575,6 +661,7 @@ function API_clickChoice(id) {
     }
     var code = choices[id].code
     API_clearChoices()
+    console.log(`Running Code: ${code}`)
     eval("(async () => {" + code + "})()")
     return true
 }
