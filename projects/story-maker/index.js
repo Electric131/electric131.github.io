@@ -468,17 +468,17 @@ function start() {
         return `if (await API_typewrite("${safeGet(block.getFieldValue('TEXT'))}", ${block.getFieldValue('SPEED')}, ${block.getFieldValue('INSTANT') == "TRUE"})) return false; `
     }
     javascript.javascriptGenerator.forBlock['choose'] = function (block) {
-        return `API_loadChoices(); `
+        return `API_loadChoices(); return true;`
     }
     javascript.javascriptGenerator.forBlock['if'] = function (block) {
         checkVar(block.getFieldValue('VARA'))
         checkVar(block.getFieldValue('VARB'))
-        return `if (typeof vars["${safeGet(block.getFieldValue('VARA'))}"] == "undefined") { vars["${safeGet(block.getFieldValue('VARA'))}"] = 0 }; if (typeof vars["${safeGet(block.getFieldValue('VARB'))}"] == "undefined") { vars["${safeGet(block.getFieldValue('VARB'))}"] = 0 }; if (vars["${safeGet(block.getFieldValue('VARA'))}"] ${block.getFieldValue('COMPARATOR')} vars["${safeGet(block.getFieldValue('VARB'))}"]) { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} }; `
+        return `if ((vars["${safeGet(block.getFieldValue('VARA'))}"] || 0) ${block.getFieldValue('COMPARATOR')} (vars["${safeGet(block.getFieldValue('VARB'))}"] || 0)) { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} }; `
     }
     javascript.javascriptGenerator.forBlock['ifelse'] = function (block) {
         checkVar(block.getFieldValue('VARA'))
         checkVar(block.getFieldValue('VARB'))
-        return `if (typeof vars["${safeGet(block.getFieldValue('VARA'))}"] == "undefined") { vars["${safeGet(block.getFieldValue('VARA'))}"] = 0 }; if (typeof vars["${safeGet(block.getFieldValue('VARB'))}"] == "undefined") { vars["${safeGet(block.getFieldValue('VARB'))}"] = 0 }; if (vars["${safeGet(block.getFieldValue('VARA'))}"] ${block.getFieldValue('COMPARATOR')} vars["${safeGet(block.getFieldValue('VARB'))}"]) { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} } else { ${javascript.javascriptGenerator.statementToCode(block, 'ELSE').trim()} }; `
+        return `if ((vars["${safeGet(block.getFieldValue('VARA'))}"] || 0) ${block.getFieldValue('COMPARATOR')} (vars["${safeGet(block.getFieldValue('VARB'))}"] || 0)) { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} } else { ${javascript.javascriptGenerator.statementToCode(block, 'ELSE').trim()} }; `
     }
     javascript.javascriptGenerator.forBlock['clear'] = function (block) {
         checkVar(block.getFieldValue('NAME'))
