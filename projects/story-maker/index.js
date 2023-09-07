@@ -486,11 +486,11 @@ function start() {
     }
     javascript.javascriptGenerator.forBlock['ifexists'] = function (block) {
         checkVar(block.getFieldValue('VAR'))
-        return `if (typeof vars["${safeGet(block.getFieldValue('VARA'))}"] == "undefined") { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} }; `
+        return `if (typeof vars["${safeGet(block.getFieldValue('VAR'))}"] != "undefined") { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} }; `
     }
     javascript.javascriptGenerator.forBlock['ifexistselse'] = function (block) {
         checkVar(block.getFieldValue('VAR'))
-        return `if (typeof vars["${safeGet(block.getFieldValue('VARA'))}"] == "undefined") { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} } else { ${javascript.javascriptGenerator.statementToCode(block, 'ELSE').trim()} }; `
+        return `if (typeof vars["${safeGet(block.getFieldValue('VAR'))}"] != "undefined") { ${javascript.javascriptGenerator.statementToCode(block, 'IF').trim()} } else { ${javascript.javascriptGenerator.statementToCode(block, 'ELSE').trim()} }; `
     }
 }
 
@@ -611,11 +611,12 @@ function API_addChoice(text, code) {
 
 function API_ending(title, description) {
     document.getElementById("ending-title").innerHTML = title
+    description = description.replaceAll("\\n", "<br>")
     document.getElementById("typewriter-show").innerHTML = converter.makeHtml(description)
 }
 
 async function API_typewrite(text, speed, isInstant) {
-    text = text.replace("\\n", "<br>")
+    text = text.replaceAll("\\n", "<br>")
     document.getElementById("typewriter-show").innerHTML = ""
     if (isInstant) { document.getElementById("typewriter-show").innerHTML = converter.makeHtml(text); return false }
     var cur = ""
@@ -651,6 +652,7 @@ function API_goto(name) {
     if (!Object.keys(labels).includes(name)) {
         throw new Error(`Unknown label name '${name}'`)
     }
+    // alert(`Running Code: ${labels[name]}`)
     console.log(`Running Code: ${labels[name]}`)
     eval("(async () => {" + labels[name] + "})()")
 }
@@ -661,6 +663,7 @@ function API_clickChoice(id) {
     }
     var code = choices[id].code
     API_clearChoices()
+    // alert(`Running Code: ${code}`)
     console.log(`Running Code: ${code}`)
     eval("(async () => {" + code + "})()")
     return true
