@@ -588,7 +588,7 @@ function stopCode() {
     waitHandler = null
 }
 
-const delay = ms => new Promise(res => setTimeout(res, ms));
+const delay = ms => new Promise(res => setTimeout(res, ms * (1/Number(document.getElementById("speed").value))));
 
 // API Calls
 var choices = []
