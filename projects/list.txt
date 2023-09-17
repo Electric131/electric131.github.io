@@ -3,3 +3,4 @@ car-demo
 wfc
 game-of-life
 story-maker
+ti-superbasic
