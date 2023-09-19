@@ -16,7 +16,7 @@ TIBasic.finish = function (code) {
     Object.values(vars).reverse().forEach((val) => {
         code = `0->${val}\n` + code;
     });
-    return `Send("CONNECT RV")\n0->A\n0->B\n` + code;
+    return `Send("CONNECT RV")\nSend("SET RV.GRID.ORIGIN")\nSend("SET RV.GYRO")\n0->A\n0->B\n` + code;
 };
 
 let workspace = null;
@@ -291,7 +291,7 @@ function start() {
         "args0": [
             {
                 "type": "input_value",
-                "name": "NAME",
+                "name": "BOOL",
                 "check": "Boolean"
             }
         ],
@@ -311,7 +311,7 @@ function start() {
             },
             {
                 "type": "field_dropdown",
-                "name": "NAME",
+                "name": "OP",
                 "options": [
                     [
                         "and",
@@ -381,7 +381,7 @@ function start() {
             {
                 "type": "field_variable",
                 "name": "VAR",
-                "variable": null
+                "variable": "value"
             },
             {
                 "type": "input_value",
@@ -418,6 +418,141 @@ function start() {
                 "type": "input_value",
                 "name": "TIME",
                 "check": "Number"
+            }
+        ],
+        "inputsInline": true,
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": 225,
+        "tooltip": "",
+        "helpUrl": ""
+    },
+    {
+        "type": "rover_turn",
+        "message0": "turn %1 by %2 degrees",
+        "args0": [
+            {
+                "type": "field_dropdown",
+                "name": "DIR",
+                "options": [
+                    [
+                        "left",
+                        "LEFT"
+                    ],
+                    [
+                        "right",
+                        "RIGHT"
+                    ]
+                ]
+            },
+            {
+                "type": "input_value",
+                "name": "DEG",
+                "check": "Number"
+            }
+        ],
+        "inputsInline": true,
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": 225,
+        "tooltip": "",
+        "helpUrl": ""
+    },
+    {
+        "type": "color",
+        "message0": "color %1",
+        "args0": [
+            {
+                "type": "field_dropdown",
+                "name": "COLOR",
+                "options": [
+                    [
+                        "Red (1)",
+                        "1"
+                    ],
+                    [
+                        "Green (2)",
+                        "2"
+                    ],
+                    [
+                        "Blue (3)",
+                        "3"
+                    ],
+                    [
+                        "Cyan (4)",
+                        "4"
+                    ],
+                    [
+                        "Magenta (5)",
+                        "5"
+                    ],
+                    [
+                        "Yellow (6)",
+                        "6"
+                    ],
+                    [
+                        "Black (7)",
+                        "7"
+                    ],
+                    [
+                        "White (8)",
+                        "8"
+                    ],
+                    [
+                        "Gray (9)",
+                        "9"
+                    ]
+                ]
+            }
+        ],
+        "inputsInline": true,
+        "output": null,
+        "colour": 330,
+        "tooltip": "",
+        "helpUrl": ""
+    },
+    {
+        "type": "rover_read",
+        "message0": "read %1 and store into %2",
+        "args0": [
+            {
+                "type": "field_dropdown",
+                "name": "TYPE",
+                "options": [
+                    [
+                        "ranger",
+                        "RANGER"
+                    ],
+                    [
+                        "direct color",
+                        "COLORINPUT"
+                    ],
+                    [
+                        "raw color (red)",
+                        "COLORINPUT.RED"
+                    ],
+                    [
+                        "raw color (green)",
+                        "COLORINPUT.GREEN"
+                    ],
+                    [
+                        "raw color (blue)",
+                        "COLORINPUT.BLUE"
+                    ],
+                    [
+                        "raw color (gray)",
+                        "COLORINPUT.GRAY"
+                    ],
+                    [
+                        "gyroscope",
+                        "GYRO"
+                    ]
+                ]
+            },
+            {
+                "type": "field_variable",
+                "name": "VAR",
+                "variable": "sensor"
             }
         ],
         "inputsInline": true,
@@ -477,7 +612,7 @@ function start() {
     };
     TIBasic.forBlock['repeat_i'] = function (block) {
         var builder = new Builder({ defaultEnding: "\n" });
-        builder.build(`B+1->B\nIf B=0:Then\n0->A\nEnd\nFor(${getVar(Blockly.Variables.getVariable(Blockly.getMainWorkspace(), block.getFieldValue("VAR")).name)},${block.getFieldValue("FROM") || 1},${block.getFieldValue("TO") || 10},${block.getFieldValue("BY") || 1})`);
+        builder.build(`B+1->B\nIf B=1:Then\n0->A\nEnd\nFor(${getVar(Blockly.Variables.getVariable(Blockly.getMainWorkspace(), block.getFieldValue("VAR")).name)},${TIBasic.valueToCode(block, "FROM", Order.ATOMIC) || 0},${TIBasic.valueToCode(block, "TO", Order.ATOMIC) || 0},${TIBasic.valueToCode(block, "BY", Order.ATOMIC) || 1})`);
         var innerCode = TIBasic.statementToCode(block, "DO");
         builder.build(`A+1->A\nIf A>${recurDepth}:Then\nStop\nEnd${innerCode.length > 0 ? "\n" + innerCode : ""}`);
         builder.build("End\nB-1->B", { needed: false, ending: "" });
@@ -486,7 +621,7 @@ function start() {
     TIBasic.forBlock['repeat_while'] = function (block) {
         var builder = new Builder({ defaultEnding: "\n" });
         var cond = TIBasic.valueToCode(block, "BOOL", Order.NONE);
-        builder.build(`B+1->B\nIf B=0:Then\n0->A\nEnd\n${block.getFieldValue("MODE")} ${cond == null ? false : cond}`);
+        builder.build(`B+1->B\nIf B=1:Then\n0->A\nEnd\n${block.getFieldValue("MODE")} ${cond == null ? false : cond}`);
         var innerCode = TIBasic.statementToCode(block, "DO");
         builder.build(`A+1->A\nIf A>${recurDepth}:Then\nStop\nEnd${innerCode.length > 0 ? "\n" + innerCode : ""}`);
         builder.build("End\nB-1->B", { needed: false, ending: "" });
@@ -504,11 +639,11 @@ function start() {
             "and": Order.LOGICAL_AND,
             "xor": Order.BITWISE_XOR
         };
-        var operation = block.getFieldValue("NAME");
+        var operation = block.getFieldValue("OP");
         return [`${TIBasic.valueToCode(block, "VAR1", Order.ATOMIC)} ${operation} ${TIBasic.valueToCode(block, "VAR1", Order.ATOMIC)}`, orders[operation]];
     };
     TIBasic.forBlock['logic_not'] = function (block) {
-        return [`not ${TIBasic.valueToCode(block, "NAME", Order.ATOMIC)}`, Order.LOGICAL_NOT];
+        return [`not ${TIBasic.valueToCode(block, "BOOL", Order.ATOMIC)}`, Order.LOGICAL_NOT];
     };
     TIBasic.forBlock['math_operator'] = function (block) {
         var orders = {
@@ -529,6 +664,9 @@ function start() {
     TIBasic.forBlock['text'] = function (block) {
         return [`"${block.getFieldValue("TEXT").replace(/([\\\"])/gm, "\\$1}") || ''}"`, Order.ATOMIC];
     };
+    TIBasic.forBlock['color'] = function (block) {
+        return [`${block.getFieldValue("COLOR") || 0}`, Order.ATOMIC];
+    };
     TIBasic.forBlock['disp'] = function (block) {
         return `Disp ${TIBasic.valueToCode(block, "TEXT", Order.NONE)}`;
     };
@@ -542,7 +680,22 @@ function start() {
         return [`${TIBasic.valueToCode(block, "VAL1", Order.ATOMIC) || '""'} + ${TIBasic.valueToCode(block, "VAL2", Order.ATOMIC) || '""'}`, 7];
     };
     TIBasic.forBlock['rover_move'] = function (block) {
-        return `Send("RV ${block.getFieldValue("DIR")} ${TIBasic.valueToCode(block, "TIME", Order.NONE) || 0}")`;
+        return `Send("RV ${block.getFieldValue("DIR")} TIME ${TIBasic.valueToCode(block, "TIME", Order.NONE) || 0}")`;
+    };
+    TIBasic.forBlock['rover_turn'] = function (block) {
+        return `Send("RV ${block.getFieldValue("DIR")} ${TIBasic.valueToCode(block, "DEG", Order.NONE) || 0}")`;
+    };
+    TIBasic.forBlock['rover_read'] = function (block) {
+        var variable = Blockly.Variables.getVariable(Blockly.getMainWorkspace(), block.getFieldValue("VAR"));
+        var saveTypes = {
+            "RANGER": "R",
+            "COLORINPUT": "C",
+            "COLORINPUT.RED": "R",
+            "COLORINPUT.GREEN": "G",
+            "COLORINPUT.BLUE": "B",
+            "COLORINPUT.GRAY": "G"
+        };
+        return `Send("READ RV.${block.getFieldValue("TYPE")}")\nGet(${saveTypes[block.getFieldValue("TYPE")]})->${getVar(variable.name)}`;
     };
     TIBasic.forBlock['variables_set'] = function (block) {
         var variable = Blockly.Variables.getVariable(Blockly.getMainWorkspace(), block.getFieldValue("VAR"));
@@ -607,7 +760,7 @@ function convert() {
                 var code = TIBasic.workspaceToCode(headless).replace(/^ +/gm, "");
                 console.log(code);
                 navigator.clipboard.writeText(code);
-                setTimeout(alert, 50, "Converted code has been copied to your clipboard! The code is recommended to be converted into .8xp through `https://www.cemetech.net/sc/`")
+                setTimeout(alert, 50, "Converted code has been copied to your clipboard! The code is recommended to be converted into .8xp through `https://www.cemetech.net/sc/`");
                 break; // There will only be one start block.
             }
         }
@@ -624,7 +777,7 @@ function convert() {
 function downloadFile() {
     var element = document.getElementById("download");
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(btoa(JSON.stringify(Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())))));
-    element.setAttribute('download', 'save.story');
+    element.setAttribute('download', 'save.tisb');
     element.click();
 }
 
@@ -633,9 +786,9 @@ async function pickFile() {
         excludeAcceptAllOption: true,
         types: [
             {
-                description: "Story Files",
+                description: "TI-SUPERBasic Files",
                 accept: {
-                    "text/plain": [".story"]
+                    "text/plain": [".tisb"]
                 }
             }
         ]
