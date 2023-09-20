@@ -97,7 +97,7 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 120,
-        "tooltip": "",
+        "tooltip": "Pauses execution for the given time.",
         "helpUrl": ""
     },
     {
@@ -105,7 +105,7 @@ function start() {
         "message0": "start",
         "nextStatement": null,
         "colour": 60,
-        "tooltip": "",
+        "tooltip": "Where the program will begin execution.",
         "helpUrl": ""
     },
     {
@@ -141,7 +141,7 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 120,
-        "tooltip": "",
+        "tooltip": "Repeats between two values, counting by the other value and gives the current index number in the variable.",
         "helpUrl": ""
     },
     {
@@ -176,7 +176,7 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 120,
-        "tooltip": "",
+        "tooltip": "Repeats while or until a given condition is met.",
         "helpUrl": ""
     },
     {
@@ -186,11 +186,7 @@ function start() {
             {
                 "type": "input_value",
                 "name": "VAL1",
-                "check": [
-                    "Boolean",
-                    "Number",
-                    "String"
-                ]
+                "check": ["Number", "String"]
             },
             {
                 "type": "field_dropdown",
@@ -221,17 +217,13 @@ function start() {
             {
                 "type": "input_value",
                 "name": "VAL2",
-                "check": [
-                    "Boolean",
-                    "Number",
-                    "String"
-                ]
+                "check": ["Number", "String"]
             }
         ],
         "inputsInline": true,
         "output": "Boolean",
         "colour": 195,
-        "tooltip": "",
+        "tooltip": "Compares two numbers with the chosen comparator.",
         "helpUrl": ""
     },
     {
@@ -282,7 +274,7 @@ function start() {
         "inputsInline": true,
         "output": "Number",
         "colour": 60,
-        "tooltip": "",
+        "tooltip": "Performs a mathematical operation on the given numbers.",
         "helpUrl": ""
     },
     {
@@ -297,7 +289,7 @@ function start() {
         ],
         "output": "Boolean",
         "colour": 195,
-        "tooltip": "",
+        "tooltip": "Inverts the given boolean.",
         "helpUrl": ""
     },
     {
@@ -336,7 +328,7 @@ function start() {
         "inputsInline": true,
         "output": "Boolean",
         "colour": 195,
-        "tooltip": "",
+        "tooltip": "Compares too boolean values with the chosen comparator.",
         "helpUrl": ""
     },
     {
@@ -355,7 +347,7 @@ function start() {
         "inputsInline": true,
         "output": "String",
         "colour": 165,
-        "tooltip": "",
+        "tooltip": "Joins two values together into a string. (Works to join numbers with strings too)",
         "helpUrl": ""
     },
     {
@@ -371,7 +363,7 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 180,
-        "tooltip": "",
+        "tooltip": "Displays the given value to the user.",
         "helpUrl": ""
     },
     {
@@ -393,7 +385,7 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 180,
-        "tooltip": "",
+        "tooltip": "Displays a message and stores the result into the chosen variable.",
         "helpUrl": ""
     },
     {
@@ -424,7 +416,7 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 225,
-        "tooltip": "",
+        "tooltip": "Tells the rover to move for a given amount of time. (Runs asyncronously)",
         "helpUrl": ""
     },
     {
@@ -455,7 +447,7 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 225,
-        "tooltip": "",
+        "tooltip": "Tells the rover to turn a specified amount of degrees. (Runs asyncronously)",
         "helpUrl": ""
     },
     {
@@ -506,9 +498,9 @@ function start() {
             }
         ],
         "inputsInline": true,
-        "output": null,
+        "output": "Number",
         "colour": 330,
-        "tooltip": "",
+        "tooltip": "A color value, mainly used for rover direct color.",
         "helpUrl": ""
     },
     {
@@ -559,7 +551,7 @@ function start() {
         "previousStatement": null,
         "nextStatement": null,
         "colour": 225,
-        "tooltip": "",
+        "tooltip": "Reads a sensor value from the rover at the current time and saves the result to the chosen variable.",
         "helpUrl": ""
     }]);
     // Create main workspace.
@@ -599,8 +591,8 @@ function start() {
         block.inputList.forEach((val) => {
             if (val.name.includes("IF")) {
                 var cond = TIBasic.valueToCode(block, val.name, Order.NONE);
-                if (val.name == "IF0") { builder.build(`If ${cond == null ? false : cond}:Then`); }
-                else { builder.build(`Else:If ${cond == null ? false : cond}:Then`); }
+                if (val.name == "IF0") { builder.build(`If ${cond == "" ? "0" : cond}:Then`); }
+                else { builder.build(`Else:If ${cond == "" ? "0" : cond}:Then`); }
             } else if (val.name.includes("DO")) { innerCode = TIBasic.statementToCode(block, val.name); builder.build(`${innerCode.length > 0 ? innerCode : ""}`, { ending: innerCode.length > 0 ? "\n" : "" }); }
             else if (val.name == "ELSE") { innerCode = TIBasic.statementToCode(block, val.name); builder.build(`Else\n${innerCode.length > 0 ? innerCode : ""}`, { ending: innerCode.length > 0 ? "\n" : "" }); }
         });
@@ -621,7 +613,7 @@ function start() {
     TIBasic.forBlock['repeat_while'] = function (block) {
         var builder = new Builder({ defaultEnding: "\n" });
         var cond = TIBasic.valueToCode(block, "BOOL", Order.NONE);
-        builder.build(`B+1->B\nIf B=1:Then\n0->A\nEnd\n${block.getFieldValue("MODE")} ${cond == null ? false : cond}`);
+        builder.build(`B+1->B\nIf B=1:Then\n0->A\nEnd\n${block.getFieldValue("MODE")} ${cond == null ? "0" : cond}`);
         var innerCode = TIBasic.statementToCode(block, "DO");
         builder.build(`A+1->A\nIf A>${recurDepth}:Then\nStop\nEnd${innerCode.length > 0 ? "\n" + innerCode : ""}`);
         builder.build("End\nB-1->B", { needed: false, ending: "" });
@@ -640,7 +632,7 @@ function start() {
             "xor": Order.BITWISE_XOR
         };
         var operation = block.getFieldValue("OP");
-        return [`${TIBasic.valueToCode(block, "VAR1", Order.ATOMIC)} ${operation} ${TIBasic.valueToCode(block, "VAR1", Order.ATOMIC)}`, orders[operation]];
+        return [`${TIBasic.valueToCode(block, "VAR1", Order.ATOMIC)} ${operation} ${TIBasic.valueToCode(block, "VAR2", Order.ATOMIC)}`, orders[operation]];
     };
     TIBasic.forBlock['logic_not'] = function (block) {
         return [`not ${TIBasic.valueToCode(block, "BOOL", Order.ATOMIC)}`, Order.LOGICAL_NOT];
@@ -684,6 +676,9 @@ function start() {
     };
     TIBasic.forBlock['rover_turn'] = function (block) {
         return `Send("RV ${block.getFieldValue("DIR")} ${TIBasic.valueToCode(block, "DEG", Order.NONE) || 0}")`;
+    };
+    TIBasic.forBlock['logic_boolean'] = function (block) {
+        return [`${block.getFieldValue("BOOL") == "TRUE" ? '1' : '0'}`, Order.ATOMIC];
     };
     TIBasic.forBlock['rover_read'] = function (block) {
         var variable = Blockly.Variables.getVariable(Blockly.getMainWorkspace(), block.getFieldValue("VAR"));
@@ -768,10 +763,6 @@ function convert() {
         alert(error);
         console.error(error);
     }
-    // var element = document.getElementById("download")
-    // element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(btoa(JSON.stringify(Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())))));
-    // element.setAttribute('download', 'code.8xp');
-    // element.click();
 }
 
 function downloadFile() {
