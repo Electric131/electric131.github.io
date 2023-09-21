@@ -16,7 +16,7 @@ TIBasic.finish = function (code) {
     Object.values(vars).reverse().forEach((val) => {
         code = `0->${val}\n` + code;
     });
-    return `Send("CONNECT RV")\nSend("SET RV.GRID.ORIGIN")\nSend("SET RV.GYRO")\n0->A\n0->B\n` + code;
+    return `Send("CONNECT RV")\nSend("SET RV.GRID.ORIGIN")\nSend("SET RV.GYRO")\n0->A\n0->D\n` + code;
 };
 
 let workspace = null;
@@ -74,7 +74,7 @@ class Builder {
 function getVar(name) {
     if (vars[name]) { return vars[name]; }
     // ABCD are exclusive to constants
-    var letters = "EFGHIJKLMNOPQRSTUVWZ".split("");
+    var letters = "EFHIJKLMNOPQSTUVWXYZ".split("");
     // Calculator is too limited, so it's only A-Z and I like nicer numbers (plus gives space for the constants)
     if (Object.keys(vars).length >= 20) { error("Variable limit reached! (20 Variables)"); }
     // Variable names "i____" are reserved for INTERNALS and NEVER accessible by user inputs.
@@ -347,7 +347,7 @@ function start() {
         "inputsInline": true,
         "output": "String",
         "colour": 165,
-        "tooltip": "Joins two values together into a string. (Works to join numbers with strings too)",
+        "tooltip": "Joins two values together into a string.",
         "helpUrl": ""
     },
     {
@@ -604,19 +604,19 @@ function start() {
     };
     TIBasic.forBlock['repeat_i'] = function (block) {
         var builder = new Builder({ defaultEnding: "\n" });
-        builder.build(`B+1->B\nIf B=1:Then\n0->A\nEnd\nFor(${getVar(Blockly.Variables.getVariable(Blockly.getMainWorkspace(), block.getFieldValue("VAR")).name)},${TIBasic.valueToCode(block, "FROM", Order.ATOMIC) || 0},${TIBasic.valueToCode(block, "TO", Order.ATOMIC) || 0},${TIBasic.valueToCode(block, "BY", Order.ATOMIC) || 1})`);
+        builder.build(`D+1->D\nIf D=1:Then\n0->A\nEnd\nFor(${getVar(Blockly.Variables.getVariable(Blockly.getMainWorkspace(), block.getFieldValue("VAR")).name)},${TIBasic.valueToCode(block, "FROM", Order.ATOMIC) || 0},${TIBasic.valueToCode(block, "TO", Order.ATOMIC) || 0},${TIBasic.valueToCode(block, "BY", Order.ATOMIC) || 1})`);
         var innerCode = TIBasic.statementToCode(block, "DO");
         builder.build(`A+1->A\nIf A>${recurDepth}:Then\nStop\nEnd${innerCode.length > 0 ? "\n" + innerCode : ""}`);
-        builder.build("End\nB-1->B", { needed: false, ending: "" });
+        builder.build("End\nD-1->D", { needed: false, ending: "" });
         return builder.finalize();
     };
     TIBasic.forBlock['repeat_while'] = function (block) {
         var builder = new Builder({ defaultEnding: "\n" });
         var cond = TIBasic.valueToCode(block, "BOOL", Order.NONE);
-        builder.build(`B+1->B\nIf B=1:Then\n0->A\nEnd\n${block.getFieldValue("MODE")} ${cond == null ? "0" : cond}`);
+        builder.build(`D+1->D\nIf D=1:Then\n0->A\nEnd\n${block.getFieldValue("MODE")} ${cond == null ? "0" : cond}`);
         var innerCode = TIBasic.statementToCode(block, "DO");
         builder.build(`A+1->A\nIf A>${recurDepth}:Then\nStop\nEnd${innerCode.length > 0 ? "\n" + innerCode : ""}`);
-        builder.build("End\nB-1->B", { needed: false, ending: "" });
+        builder.build("End\nD-1->D", { needed: false, ending: "" });
         return builder.finalize();
     };
     TIBasic.forBlock['math_number'] = function (block) {
@@ -688,9 +688,10 @@ function start() {
             "COLORINPUT.RED": "R",
             "COLORINPUT.GREEN": "G",
             "COLORINPUT.BLUE": "B",
-            "COLORINPUT.GRAY": "G"
+            "COLORINPUT.GRAY": "G",
+            "GYRO": "G"
         };
-        return `Send("READ RV.${block.getFieldValue("TYPE")}")\nGet(${saveTypes[block.getFieldValue("TYPE")]})->${getVar(variable.name)}`;
+        return `Send("READ RV.${block.getFieldValue("TYPE")}")\nGet(${saveTypes[block.getFieldValue("TYPE")]})\n${saveTypes[block.getFieldValue("TYPE")]}->${getVar(variable.name)}`;
     };
     TIBasic.forBlock['variables_set'] = function (block) {
         var variable = Blockly.Variables.getVariable(Blockly.getMainWorkspace(), block.getFieldValue("VAR"));
@@ -763,6 +764,10 @@ function convert() {
         alert(error);
         console.error(error);
     }
+    // var element = document.getElementById("download")
+    // element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(btoa(JSON.stringify(Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())))));
+    // element.setAttribute('download', 'code.8xp');
+    // element.click();
 }
 
 function downloadFile() {
