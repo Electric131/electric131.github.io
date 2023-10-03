@@ -553,6 +553,22 @@ function start() {
         "colour": 225,
         "tooltip": "Reads a sensor value from the rover at the current time and saves the result to the chosen variable.",
         "helpUrl": ""
+    },
+    {
+        "type": "to_string",
+        "message0": "toString %1",
+        "args0": [
+            {
+                "type": "input_value",
+                "name": "NUM",
+                "check": "Number"
+            }
+        ],
+        "inputsInline": true,
+        "output": "String",
+        "colour": 75,
+        "tooltip": "Converts a number into a string.",
+        "helpUrl": ""
     }]);
     // Create main workspace.
     workspace = Blockly.inject('blocklyDiv', {
@@ -656,6 +672,9 @@ function start() {
     TIBasic.forBlock['text'] = function (block) {
         return [`"${block.getFieldValue("TEXT").replace(/([\\\"])/gm, "\\$1}") || ''}"`, Order.ATOMIC];
     };
+    TIBasic.forBlock['to_string'] = function (block) {
+        return [`toString(${TIBasic.valueToCode(block, "NUM", Order.NONE)})`, Order.ATOMIC];
+    };
     TIBasic.forBlock['color'] = function (block) {
         return [`${block.getFieldValue("COLOR") || 0}`, Order.ATOMIC];
     };
@@ -672,10 +691,10 @@ function start() {
         return [`${TIBasic.valueToCode(block, "VAL1", Order.ATOMIC) || '""'} + ${TIBasic.valueToCode(block, "VAL2", Order.ATOMIC) || '""'}`, 7];
     };
     TIBasic.forBlock['rover_move'] = function (block) {
-        return `Send("RV ${block.getFieldValue("DIR")} TIME ${TIBasic.valueToCode(block, "TIME", Order.NONE) || 0}")`;
+        return `Send("RV ${block.getFieldValue("DIR")} TIME "+toString(${TIBasic.valueToCode(block, "TIME", Order.NONE) || 0}))`;
     };
     TIBasic.forBlock['rover_turn'] = function (block) {
-        return `Send("RV ${block.getFieldValue("DIR")} ${TIBasic.valueToCode(block, "DEG", Order.NONE) || 0}")`;
+        return `Send("RV ${block.getFieldValue("DIR")} "+toString(${TIBasic.valueToCode(block, "DEG", Order.NONE) || 0}))`;
     };
     TIBasic.forBlock['logic_boolean'] = function (block) {
         return [`${block.getFieldValue("BOOL") == "TRUE" ? '1' : '0'}`, Order.ATOMIC];
@@ -756,7 +775,7 @@ function convert() {
                 var code = TIBasic.workspaceToCode(headless).replace(/^ +/gm, "");
                 console.log(code);
                 navigator.clipboard.writeText(code);
-                setTimeout(alert, 50, "Converted code has been copied to your clipboard! The code is recommended to be converted into .8xp through `https://www.cemetech.net/sc/`");
+                setTimeout(alert, 50, "Converted code has been copied to your clipboard!");
                 break; // There will only be one start block.
             }
         }
